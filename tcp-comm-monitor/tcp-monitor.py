@@ -1,6 +1,7 @@
 import socket, threading, time, sys
 from ipheader import IP
 from tcpheader import TCP
+import parameter
 
 # TCPクライアント通信スレッド処理
 def client_work(client, host, port, is_close_from_client):
@@ -58,12 +59,9 @@ def monitor_work(sock, server_addr = None, is_debug = False):
             print("[*] Excp. Detail:", ex)
 
 def main():
-    # Set flags
-    debug = True if "DEBUG" in sys.argv else False
-    close_from_client = True if "CCLOSE" in sys.argv else False
-
-    # Server Host Name
-    server_host_name = "example.com"
+    # パラメータ読込
+    filepath = sys.argv[1] if len(sys.argv) > 1 else None
+    _parameter = parameter.Parameter(filepath)
 
     # TCP通信監視用RAWソケット
     sock = socket.socket(socket.AF_INET,socket.SOCK_RAW, socket.IPPROTO_IP)
@@ -74,10 +72,14 @@ def main():
     # TCPクライアント
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    client_thread = threading.Thread(target=client_work, args=(client, server_host_name, 80, close_from_client,) )
+    client_thread = threading.Thread(
+        target=client_work,
+        args=(client, _parameter.host, _parameter.port, _parameter.close_from_client,) )
 
-    server_addr = socket.gethostbyname(server_host_name)
-    monitor_thread = threading.Thread(target=monitor_work, args=(sock, server_addr, debug,))
+    server_addr = socket.gethostbyname(_parameter.host)
+    monitor_thread = threading.Thread(
+        target=monitor_work,
+        args=(sock, server_addr, _parameter.debugmode,))
 
     # スレッド始動
     monitor_thread.start()
