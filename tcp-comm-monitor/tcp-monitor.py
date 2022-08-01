@@ -1,6 +1,7 @@
 import socket, threading, time, sys
-from ipheader import IP
-from tcpheader import TCP
+sys.path.append("../")
+from protoheader.ipheader import IP
+from protoheader.tcpheader import TCP
 import parameter
 
 # TCPクライアント通信スレッド処理
